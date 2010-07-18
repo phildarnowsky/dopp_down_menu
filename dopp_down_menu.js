@@ -40,6 +40,9 @@ function dopp_down_menu(
   var name_field = _options.name_field || 'name';
   var popularity_field = _options.popularity_field || 'popularity';
 
+  var show_popularity_in_suggestions = _options.show_popularity_in_suggestions || false;
+  var show_popularity_in_popular_choices = _options.show_popularity_in_popular_choices || false;
+
   var dopp_down_menu_closure = function() {
     var uparrow_code = 38;
     var downarrow_code = 40;
@@ -76,13 +79,18 @@ function dopp_down_menu(
       autosuggest_div.hide();
     };
 
-    function create_suggestion_link(suggestion) {
+    function create_suggestion_link(suggestion, options) {
+      var _options = options || {};
+
       var processed_suggestion = pre_link_creation_hook(suggestion);
 
       var suggestion_name = processed_suggestion[name_field];
       var suggestion_popularity = processed_suggestion[popularity_field];
 
-      var link_text = suggestion_name + ' (' + suggestion_popularity + ')';
+      var link_text = suggestion_name;
+      if(_options.show_popularity) {
+        link_text = link_text + ' (' + suggestion_popularity + ')';
+      }
 
       result_html = [
         '<a href="#" class="',
@@ -98,11 +106,11 @@ function dopp_down_menu(
       return(result);
     };
 
-    function create_suggestion_links_from_suggestions(suggestions) {
+    function create_suggestion_links_from_suggestions(suggestions, options) {
       var suggestion_names;
       var suggestion_links;
 
-      suggestion_links = $.map(suggestions, create_suggestion_link);
+      suggestion_links = $.map(suggestions, function(suggestion) {return create_suggestion_link(suggestion, options)});
       return(suggestion_links);
     };
 
@@ -206,12 +214,12 @@ function dopp_down_menu(
     };
 
     function populate_popular_div(data) {
-      var suggestion_links = create_suggestion_links_from_suggestions(data, {show_popularity: true});
+      var suggestion_links = create_suggestion_links_from_suggestions(data, {show_popularity: show_popularity_in_popular_choices});
       populate_div_with_suggestion_links(popular_choice_div, suggestion_links);
     };
 
     function populate_suggestion_div(suggestions) {
-      suggestion_links = create_suggestion_links_from_suggestions(suggestions);
+      suggestion_links = create_suggestion_links_from_suggestions(suggestions, {show_popularity: show_popularity_in_suggestions});
       populate_div_with_suggestion_links(autosuggest_div, suggestion_links).show();
     };
 
