@@ -7,6 +7,107 @@
  * Copyright 2010 Phil Darnowsky
  * After an idea by Sarah Dopp
  *  
+ * Please note that this is alpha software. It's hard to see how it could hurt
+ * anything, but still, you use it at your own risk.
+ *
+ *
+ * USAGE:
+ *
+ * dopp_down_menu(
+ *   direct_entry_field_selector, 
+ *   autosuggest_div_selector,
+ *   suggestion_lookup_url, 
+ *   options
+ * ) 
+ *
+ *
+ * MANDATORY PARAMETERS:
+ *
+ * direct_entry_field_selector is a selector or jQuery object representing
+ *   the element (usually a text field) that the autosuggestor will watch and
+ *   use the value of the make suggestion queries.
+ *
+ * autosuggest_div_selector is a selector or jQuery object that will be
+ *   populated with suggestions.
+ *
+ * suggestion_lookup_url is the search URL that will be called (via GET) to
+ *   look up suggestions. See EXPECTED RESPONSE below for what the response 
+ *   is expected to look like.
+ *
+ * 
+ * OPTIONAL PARAMETERS:
+ *
+ * By passing an optional JavaScript object as the fourth parameter to
+ * dopp_down_menu, you can customize the functionality of the widget.
+ *
+ * suggestion_link_class is the class that suggestion links will be generated
+ *   with. Default is "dopp_down_menu_suggestions".
+ *
+ * highlighted_link_class is the class that the currently highlighted
+ *   suggestion link will have. Default is "dopp_down_menu_highlighted"
+ *
+ * popular_choice_div_selector and popular_choice_url, if both are set, will
+ *   call the specified URL once at page load and populate the specified
+ *   element with "popular" links.
+ *
+ * minimum_lookup_string_length is the minimum number of characters that have
+ *   to be in the watched field before we'll query the server for suggestions.
+ *   Default is 3.
+ *
+ * autosuggest_timeout is the minimum amount of time (in milliseconds) that 
+ *   will pass between queries to the server for suggestions. Default is 250
+ *   milliseconds, i.e. 1/4 second.
+ *
+ * search_query_param is the query parameter that will get the value of the
+ *   suggestion field when querying the server. For example, if 
+ *   suggestion_lookup_url is "http://example.com/autosuggest", and
+ *   search_query_param is "find_suggestion", and the query field contains
+ *   "blurg", then the URL that we'll query for suggestions is
+ *     http://example.com/autosuggest?find_suggestion=blurg
+ *   Default is "search".
+ *
+ * name_field and popularity_field are the fields in a suggestion object where
+ *   we expect to find the text of the suggestion and a "popularity" value
+ *   (what "popularity" means in your context is up to you). Defaults are
+ *   name and popularity respectively.
+ *
+ * show_popularity_in_suggestions and show_popularity_in_popular_choices are
+ *   flags that indicate whether suggestion/popular links should show their
+ *   popularity value after their name, e.g., "blurg (7413)" for a suggestion
+ *   "blurg" with popularity of 7413. Both default to false.
+ *
+ * suggestion_link_pre_insert_hook and suggestion_link_post_insert_hook are
+ *   called just before and just after a suggestion link is added to the page
+ *   (either in the suggestion or "popular choices" element). They get passed
+ *   the link being added and the div being added to. This is a good chance to
+ *   add a little HTML before or after a link.
+ *
+ * pre_link_creation_hook gets passed each JSON object received from the
+ *   server before we build a link out of it. You can use this to massage or
+ *   preprocess the data if you'd rather not change the backend.
+ *
+ *
+ * EXPECTED RESPONSE
+ *
+ * By default, dopp_down_menu expects suggestions/popular choices to be
+ * returned from the server as a list of JSON objects with "name" and (if 
+ * you're displaying the popularity counts) "popularity" fields. You can use
+ * pre_link_creation_hook (detailed above) to alter each suggestion
+ * arbitrarily.
+ *
+ * For example, if you write the backend in Rails, and you've got a SearchTerm
+ * model with name and popularity fields, the default implementation of
+ * to_json will give you something like this:
+ *
+ *   "'search_term': {'name': 'blurg', 'popularity': 7314}"
+ *
+ * So you would want pre_link_creation hook to strip off that search_term
+ * wrapper like so:
+ *
+ *   pre_link_creation_hook: function(suggestion) {suggestion.search_term}
+ *
+ *
+ * LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
